@@ -1,0 +1,110 @@
+Sub ReplaceXAndSlashStrings()
+    Dim userForm As Object
+    Dim userName As String
+    Dim userDate As String
+    Dim doc As Document
+    Dim rng As Range
+    Dim wordText As String
+    Dim i As Long
+    Dim isXString As Boolean
+    Dim isSlashString As Boolean
+    Dim section As section
+    Dim headerRange As Range
+
+    ' Create a custom input box using VBA InputBox for simplicity
+    userName = InputBox("Enter the name to replace x-strings (4+ x's):", "Name Input")
+    If userName = "" Then
+        MsgBox "No name entered. Operation cancelled.", vbExclamation
+        Exit Sub
+    End If
+
+    userDate = InputBox("Enter the date to replace slash-strings (3+ slashes):", "Date Input")
+    If userDate = "" Then
+        MsgBox "No date entered. Operation cancelled.", vbExclamation
+        Exit Sub
+    End If
+
+    Set doc = ActiveDocument
+
+    ' === Replace in Main Body ===
+    For Each rng In doc.Words
+        wordText = Trim(rng.Text)
+
+        ' Check for x-string (min 4)
+        If Len(wordText) >= 4 Then
+            isXString = True
+            For i = 1 To Len(wordText)
+                If LCase(Mid(wordText, i, 1)) <> "x" Then
+                    isXString = False
+                    Exit For
+                End If
+            Next i
+            If isXString Then
+                rng.Text = userName
+                GoTo NextWord
+            End If
+        End If
+
+        ' Check for slash-string (min 3)
+        If Len(wordText) >= 3 Then
+            isSlashString = True
+            For i = 1 To Len(wordText)
+                If Mid(wordText, i, 1) <> "/" Then
+                    isSlashString = False
+                    Exit For
+                End If
+            Next i
+            If isSlashString Then
+                rng.Text = userDate
+            End If
+        End If
+
+NextWord:
+    Next rng
+
+    ' === Replace in Headers ===
+    For Each section In doc.Sections
+        Set headerRange = section.Headers(wdHeaderFooterPrimary).Range
+
+        For Each rng In headerRange.Words
+            wordText = Trim(rng.Text)
+
+            ' Check for x-string (min 4)
+            If Len(wordText) >= 4 Then
+                isXString = True
+                For i = 1 To Len(wordText)
+                    If LCase(Mid(wordText, i, 1)) <> "x" Then
+                        isXString = False
+                        Exit For
+                    End If
+                Next i
+                If isXString Then
+                    rng.Text = userName
+                    GoTo NextHeaderWord
+                End If
+            End If
+
+            ' Check for slash-string (min 3)
+            If Len(wordText) >= 3 Then
+                isSlashString = True
+                For i = 1 To Len(wordText)
+                    If Mid(wordText, i, 1) <> "/" Then
+                        isSlashString = False
+                        Exit For
+                    End If
+                Next i
+                If isSlashString Then
+                    rng.Text = userDate
+                End If
+            End If
+
+NextHeaderWord:
+        Next rng
+    Next section
+
+    MsgBox "Replacement complete!" & vbCrLf & _
+           "x-strings ? " & userName & vbCrLf & _
+           "/-strings ? " & userDate, vbInformation
+End Sub
+
+
