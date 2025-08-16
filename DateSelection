@@ -1,0 +1,17 @@
+Sub SelectDates()
+    Dim cell As Range
+    Dim dateCells As Range
+    
+    For Each cell In ActiveSheet.UsedRange
+        If IsDate(cell.Value) Then
+            If dateCells Is Nothing Then
+                Set dateCells = cell
+            Else
+                Set dateCells = Union(dateCells, cell)
+            End If
+        End If
+    Next cell
+    
+    If Not dateCells Is Nothing Then dateCells.Select
+End Sub
+
