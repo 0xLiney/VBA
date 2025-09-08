@@ -1,0 +1,35 @@
+Sub SplitREF_REF_Auto()
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    Dim rawValue As String
+    Dim parts() As String
+    
+    Set ws = ThisWorkbook.Sheets("Sheet2") ' <<< Change to your sheet name
+    
+    ' =========================
+    ' COLUMNS
+    ' =========================
+    Dim sourceCol As Long
+    sourceCol = 2 ' <<< Column with mashed REF/REF numbers (A=1, B=2, etc.)
+    
+    Dim targetAISCol As Long
+    targetAISCol = sourceCol + 1 ' <<< Automatically creates the next column for AIS
+    ' =========================
+    
+    ' Find last row with data in source column
+    lastRow = ws.Cells(ws.Rows.Count, sourceCol).End(xlUp).Row
+    
+    ' Loop through each row and split
+    For i = 1 To lastRow ' ASSUMING ROW 1 IS THE HEADER (OTHERWISE CHANGE 1 TO 2)
+        rawValue = ws.Cells(i, sourceCol).Value
+        parts = Split(rawValue, " / ") ' split on space-slash-space
+        If UBound(parts) >= 1 Then
+            ws.Cells(i, sourceCol).Value = parts(0) ' First column number stays in source column
+            ws.Cells(i, targetAISCol).Value = parts(1) ' Case ID goes to next column
+        End If
+    Next i
+    
+    MsgBox "Split complete!"
+End Sub
+
